@@ -5,6 +5,6 @@ const (
 	LayoutsPath   string = "templates/layouts/"
 	StaticPath    string = "static/"
 	CssPath       string = "static/css/"
-	ImgPass       string = "static/img/"
-	JsPass        string = "static/js/"
+	ImgPath       string = "static/img/"
+	JsPath        string = "static/js/"
 )
