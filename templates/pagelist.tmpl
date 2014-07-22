@@ -1,0 +1,10 @@
+{{ define "Header" }}{{ end }}
+{{ define "Contents" }}
+
+{{ range .Pages }}
+	<a href="/page/{{ .Title }}">{{ .Title }}</a><br />
+{{ else }}
+	<h3>ページが存在しません</h3>
+{{ end }}
+
+{{ end }}
