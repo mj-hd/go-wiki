@@ -19,7 +19,7 @@ func indexHandler(document http.ResponseWriter, request *http.Request) {
 	}
 
 	tmpl.Layout = "default.tmpl"
-	tmpl.Template = "page.tmpl"
+	tmpl.Template = "pageView.tmpl"
 
 	tmpl.Render(document, pageMember{
 		DefaultMember: &templates.DefaultMember{

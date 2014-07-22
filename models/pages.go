@@ -15,28 +15,23 @@ type Page struct {
 	Locked   bool
 	Created  time.Time
 	Modified mysql.NullTime
-	Contents sql.NullString
+	Content  sql.NullString
 }
 
 func (this *Page) Load(title string) error {
-	row := DB.QueryRow("SELECT id, title, user, locked, created, modified, contents FROM pages WHERE title = ?", title)
-	err := row.Scan(&this.Id, &this.Title, &this.User, &this.Locked, &this.Created, &this.Modified, &this.Contents)
+	row := DB.QueryRow("SELECT id, title, user, locked, created, modified, content FROM pages WHERE title = ?", title)
+	err := row.Scan(&this.Id, &this.Title, &this.User, &this.Locked, &this.Created, &this.Modified, &this.Content)
 	return err
 }
-func (this *Page) Save() error {
-	var rowCount int
-	err := DB.QueryRow("SELECT count(id) FROM pages WHERE title = ?", this.Title).Scan(&rowCount)
-	if err != nil {
-		return err
-	}
+func (this *Page) Save(title string) error {
 
-	if rowCount != 0 {
-		_, err := DB.Exec("UPDATE pages SET user = ?, locked = ?, created = ?, modified = ?, contents = ? WHERE title = ?", this.User, this.Locked, this.Created, this.Modified, this.Contents, this.Title)
+	if title == "" || !PageExists(title) {
+		_, err := DB.Exec("INSERT INTO pages ( title, user, locked, created, modified, content ) VALUES ( ?, ?, ?, ?, ?, ?)", this.Title, this.User, this.Locked, this.Created, this.Modified, this.Content)
 		if err != nil {
 			return err
 		}
 	} else {
-		_, err := DB.Exec("INSERT INTO pages ( title, user, locked, created, modified, contents ) VALUES ( ?, ?, ?, ?, ?, ?)", this.Title, this.User, this.Locked, this.Created, this.Modified, this.Contents)
+		_, err := DB.Exec("UPDATE pages SET title = ?, user = ?, locked = ?, created = ?, modified = ?, content = ? WHERE title = ?", this.Title, this.User, this.Locked, this.Created, this.Modified, this.Content, title)
 		if err != nil {
 			return err
 		}
@@ -45,7 +40,7 @@ func (this *Page) Save() error {
 	return nil
 }
 func (this *Page) Markdown() []byte {
-	return blackfriday.MarkdownCommon([]byte(this.Contents.String))
+	return blackfriday.MarkdownCommon([]byte(this.Content.String))
 }
 
 func GetPageList(pages *[]Page, limit int) error {
@@ -61,7 +56,7 @@ func GetPageList(pages *[]Page, limit int) error {
 		*pages = make([]Page, rowCount)
 	}
 
-	rows, err := DB.Query("SELECT id, title, user, locked, created, modified, contents FROM pages")
+	rows, err := DB.Query("SELECT id, title, user, locked, created, modified, content FROM pages")
 	if err != nil {
 		return err
 	}
@@ -69,7 +64,7 @@ func GetPageList(pages *[]Page, limit int) error {
 
 	i := 0
 	for rows.Next() {
-		err := rows.Scan(&(*pages)[i].Id, &(*pages)[i].Title, &(*pages)[i].User, &(*pages)[i].Locked, &(*pages)[i].Created, &(*pages)[i].Modified, &(*pages)[i].Contents)
+		err := rows.Scan(&(*pages)[i].Id, &(*pages)[i].Title, &(*pages)[i].User, &(*pages)[i].Locked, &(*pages)[i].Created, &(*pages)[i].Modified, &(*pages)[i].Content)
 		if err != nil {
 			return err
 		}
@@ -81,4 +76,16 @@ func GetPageList(pages *[]Page, limit int) error {
 	}
 
 	return nil
+}
+
+func PageExists(title string) bool {
+
+	var rowCount int
+
+	err := DB.QueryRow("SELECT count(id) FROM pages WHERE title=?", title).Scan(&rowCount)
+	if err != nil {
+		return false
+	}
+
+	return rowCount > 0
 }

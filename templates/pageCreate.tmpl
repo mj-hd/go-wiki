@@ -1,0 +1,13 @@
+{{ define "Header" }}{{ end }}
+{{ define "Content" }}
+
+<form action="/page/save/" method="POST">
+
+	<input type="text" name="Title">タイトル</input><br />
+
+	<textarea name="Content">内容</textarea><br />
+
+	<input type="submit" value="保存" />
+</form>
+
+{{ end }}
