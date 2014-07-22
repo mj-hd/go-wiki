@@ -17,7 +17,7 @@ func main() {
 		http.HandleFunc(path, function)
 	}
 
-	http.Handle("/"+config.StaticPath, http.StripPrefix("/static/", http.FileServer(http.Dir(config.StaticPath))))
+	http.Handle("/"+config.StaticPath, http.StripPrefix("/"+config.StaticPath, http.FileServer(http.Dir(config.StaticPath))))
 
 	http.ListenAndServe(":"+config.ServerPort, nil)
 }
