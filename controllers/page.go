@@ -10,11 +10,11 @@ import (
 )
 
 type pageMember struct {
-	Title    string
+	*templates.DefaultMember
 	Markdown template.HTML
 }
 type pageListMember struct {
-	Title string
+	*templates.DefaultMember
 	Pages []models.Page
 }
 
@@ -35,7 +35,13 @@ func pageHandler(document http.ResponseWriter, request *http.Request) {
 		var tmpl templates.Template
 		tmpl.Layout = "default.tmpl"
 		tmpl.Template = "pagelist.tmpl"
-		tmpl.Render(document, pageListMember{Title: "ページ一覧", Pages: pages})
+		tmpl.Render(document, pageListMember{
+			DefaultMember: &templates.DefaultMember{
+				Title: "ページ一覧",
+			},
+			Pages: pages,
+		})
+
 	} else {
 		var page models.Page
 		err := page.Load(requestedPage)
@@ -48,7 +54,12 @@ func pageHandler(document http.ResponseWriter, request *http.Request) {
 		tmpl.Layout = "default.tmpl"
 		tmpl.Template = "page.tmpl"
 
-		tmpl.Render(document, pageMember{Title: page.Title, Markdown: template.HTML(page.Markdown())})
+		tmpl.Render(document, pageMember{
+			DefaultMember: &templates.DefaultMember{
+				Title: page.Title,
+			},
+			Markdown: template.HTML(page.Markdown()),
+		})
 	}
 
 }
