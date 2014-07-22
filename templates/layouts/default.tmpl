@@ -1,9 +1,12 @@
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-<title>{{ .Title }}</title>
-{{ template "Header" . }}
+	<meta charset="utf-8">
+	<title>{{ .Title }}</title>
+	<link rel="stylesheet" href="main.css" />
+	{{ template "Header" . }}
 </head>
 <body>
-{{ template "Contents" . }}
+	{{ template "Content" . }}
 </body>
 </html>
