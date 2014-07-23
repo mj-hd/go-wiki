@@ -50,12 +50,16 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 		}
 
 		tmpl.Template = "pageList.tmpl"
-		tmpl.Render(document, pageListMember{
+		err = tmpl.Render(document, pageListMember{
 			DefaultMember: &templates.DefaultMember{
 				Title: "ページ一覧",
 			},
 			Pages: pages,
 		})
+		if err != nil {
+			utils.PromulgateFatal(os.Stdout, err)
+			panic(err.Error())
+		}
 
 	} else {
 		var page models.Page
@@ -67,13 +71,18 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 
 		tmpl.Template = "pageView.tmpl"
 
-		tmpl.Render(document, pageMember{
+		err = tmpl.Render(document, pageMember{
 			DefaultMember: &templates.DefaultMember{
 				Title: page.Title,
 			},
 			Markdown:    template.HTML(page.Markdown()),
 			Information: page,
 		})
+		if err != nil {
+			utils.PromulgateFatal(os.Stdout, err)
+			panic(err.Error())
+		}
+
 	}
 
 }
@@ -96,13 +105,17 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 			tmpl.Layout = "default.tmpl"
 			tmpl.Template = "pageEdit.tmpl"
 
-			tmpl.Render(document, pageMember{
+			err := tmpl.Render(document, pageMember{
 				DefaultMember: &templates.DefaultMember{
 					Title: requestedPage + "の編集",
 				},
 				Markdown:    template.HTML(page.Markdown()),
 				Information: page,
 			})
+			if err != nil {
+				utils.PromulgateFatal(os.Stdout, err)
+				panic(err.Error())
+			}
 
 		} else {
 			http.Redirect(document, request, "/page/create/"+requestedPage, http.StatusFound)
@@ -118,7 +131,12 @@ func pageCreateHandler(document http.ResponseWriter, request *http.Request) {
 	tmpl.Layout = "default.tmpl"
 	tmpl.Template = "pageCreate.tmpl"
 
-	tmpl.Render(document, templates.DefaultMember{Title: "新規ページの作成"})
+	err := tmpl.Render(document, &templates.DefaultMember{Title: "新規ページの作成"})
+	if err != nil {
+		utils.PromulgateFatal(os.Stdout, err)
+		panic(err.Error())
+	}
+
 }
 
 func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
@@ -131,11 +149,14 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 	page.Content = sql.NullString{String: request.FormValue("Content"), Valid: true}
 	page.User = "admin"
 	page.Locked = false
-	page.Created = time.Now()
 	if !models.PageExists(page.Title) {
 		page.Modified = mysql.NullTime{Valid: false}
+		page.Created = time.Now()
 	} else {
 		page.Modified = mysql.NullTime{Time: time.Now(), Valid: true}
+		var oldPage models.Page
+		oldPage.Load(oldTitle)
+		page.Created = oldPage.Created
 	}
 
 	if page.Save(oldTitle) == nil {
@@ -144,7 +165,11 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 		tmpl.Layout = "default.tmpl"
 		tmpl.Template = "pageSave.tmpl"
 
-		tmpl.Render(document, nil)
+		err := tmpl.Render(document, nil)
+		if err != nil {
+			utils.PromulgateFatal(os.Stdout, err)
+			panic(err.Error())
+		}
 
 	} else {
 
