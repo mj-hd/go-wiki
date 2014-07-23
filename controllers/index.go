@@ -3,9 +3,11 @@ package controllers
 import (
 	"html/template"
 	"net/http"
+	"os"
 
 	"go-wiki/models"
 	"go-wiki/templates"
+	"go-wiki/utils"
 )
 
 func indexHandler(document http.ResponseWriter, request *http.Request) {
@@ -15,6 +17,7 @@ func indexHandler(document http.ResponseWriter, request *http.Request) {
 
 	err := page.Load("index")
 	if err != nil {
+		utils.PromulgateFatal(os.Stdout, err)
 		panic(err.Error())
 	}
 

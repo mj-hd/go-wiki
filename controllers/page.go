@@ -5,12 +5,14 @@ import (
 	"html"
 	"html/template"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
 
 	"go-wiki/models"
 	"go-wiki/templates"
+	"go-wiki/utils"
 )
 
 type pageMember struct {
@@ -33,6 +35,7 @@ func pageHandler(document http.ResponseWriter, request *http.Request) {
 func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 
 	requestedPage := html.EscapeString(request.URL.Path[6+5:])
+
 	var tmpl templates.Template
 	tmpl.Layout = "default.tmpl"
 
@@ -42,6 +45,7 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 
 		err := models.GetPageList(&pages, 10)
 		if err != nil {
+			utils.PromulgateFatal(os.Stdout, err)
 			panic(err.Error())
 		}
 
@@ -57,6 +61,7 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 		var page models.Page
 		err := page.Load(requestedPage)
 		if err != nil {
+			utils.PromulgateFatal(os.Stdout, err)
 			panic(err.Error())
 		}
 
@@ -143,6 +148,7 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 
 	} else {
 
+		utils.PromulgateFatalStr(os.Stdout, "Page"+page.Title+"の保存に失敗")
 		panic("Save failed.")
 
 	}
