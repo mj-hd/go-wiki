@@ -3,6 +3,7 @@ package config
 import "go-wiki/utils"
 
 const (
+	SiteTitle  string = "Go-Wiki"
 	ServerPort string = "8080"
 	DBHost     string = "localhost"
 	DBPort     string = "3306"
@@ -12,4 +13,5 @@ const (
 	DisplayLog bool   = true
 	LogLevel   int    = utils.Level_Debug
 	LogFile    string = "log"
+	SessionKey string = "sample"
 )

@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 
+	"go-wiki/config"
 	"go-wiki/models"
 	"go-wiki/templates"
 	"go-wiki/utils"
@@ -52,7 +53,8 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 		tmpl.Template = "pageList.tmpl"
 		err = tmpl.Render(document, pageListMember{
 			DefaultMember: &templates.DefaultMember{
-				Title: "ページ一覧",
+				Title: "ページ一覧 " + config.SiteTitle,
+				User:  getSessionUser(request),
 			},
 			Pages: pages,
 		})
@@ -73,7 +75,8 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 
 		err = tmpl.Render(document, pageMember{
 			DefaultMember: &templates.DefaultMember{
-				Title: page.Title,
+				Title: page.Title + " " + config.SiteTitle,
+				User:  getSessionUser(request),
 			},
 			Markdown:    template.HTML(page.Markdown()),
 			Information: page,
@@ -107,7 +110,8 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 
 			err := tmpl.Render(document, pageMember{
 				DefaultMember: &templates.DefaultMember{
-					Title: requestedPage + "の編集",
+					Title: requestedPage + "の編集 " + config.SiteTitle,
+					User:  getSessionUser(request),
 				},
 				Markdown:    template.HTML(page.Markdown()),
 				Information: page,
@@ -131,7 +135,10 @@ func pageCreateHandler(document http.ResponseWriter, request *http.Request) {
 	tmpl.Layout = "default.tmpl"
 	tmpl.Template = "pageCreate.tmpl"
 
-	err := tmpl.Render(document, &templates.DefaultMember{Title: "新規ページの作成"})
+	err := tmpl.Render(document, &templates.DefaultMember{
+		Title: "新規ページの作成 " + config.SiteTitle,
+		User:  getSessionUser(request),
+	})
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
 		panic(err.Error())
@@ -165,7 +172,10 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 		tmpl.Layout = "default.tmpl"
 		tmpl.Template = "pageSave.tmpl"
 
-		err := tmpl.Render(document, nil)
+		err := tmpl.Render(document, &templates.DefaultMember{
+			Title: "保存に成功 " + config.SiteTitle,
+			User:  getSessionUser(request),
+		})
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)
 			panic(err.Error())

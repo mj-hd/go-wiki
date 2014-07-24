@@ -1,0 +1,13 @@
+{{ define "Header" }}
+{{ end }}
+{{ define "Content" }}
+
+<h1>{{ .Information.Caption }}</h1>
+
+<hr />
+
+ユーザID: {{ .Information.Name }}<br />
+アドレス: {{ .Information.Address }}<br />
+権限レベル: {{ .Information.Level }}<br />
+
+{{ end }}

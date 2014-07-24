@@ -5,11 +5,19 @@
 	<title>{{ .Title }}</title>
 	{{ .LinkCSS "main.css" }}
 	{{ .LinkCSS "markdown.css" }}
+	{{ .LinkJS "jquery.js" }}
 	{{ template "Header" . }}
 </head>
 <body>
 	<header>
-		<h1>{{ .Title }}</h1>
+		<div>
+			<h1>{{ .Title }}</h1>
+			{{ if eq .User "anonymous" }}
+				<span><a href="/user/login/">ログイン</a></span>
+			{{ else }}
+				<span><a href="/user/view/{{.User}}">{{.User}}</a>, <a href="/user/logout/">ログアウト</a></span>
+			{{ end }}
+		</div>
 	</header>
 
 	<div id="sidebar">

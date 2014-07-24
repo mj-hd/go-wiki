@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"go-wiki/config"
 	"go-wiki/models"
 	"go-wiki/templates"
 	"go-wiki/utils"
@@ -26,7 +27,8 @@ func indexHandler(document http.ResponseWriter, request *http.Request) {
 
 	err = tmpl.Render(document, pageMember{
 		DefaultMember: &templates.DefaultMember{
-			Title: "index page",
+			Title: "IndexPage - " + config.SiteTitle,
+			User:  getSessionUser(request),
 		},
 		Markdown: template.HTML(page.Markdown()),
 	})

@@ -1,0 +1,30 @@
+{{ define "Header" }}
+
+{{ end }}
+
+{{ define "Content" }}
+
+	<form action="/user/login/" method="POST" class="login">
+
+		<h2>ログイン</h2>
+
+		<table class="login_table">
+			<tr>
+				<td>ユーザ名</td>
+				<td><input type="text" name="Name" /></td>
+			</tr>
+			<tr>
+				<td>パスワード</td>
+				<td><input type="password" name="Password" /></td>
+			</tr>
+			<tr>
+				<td><input type="submit" value="ログイン" /></td>
+				<td></td>
+			</tr>
+		</table>
+
+		<a href="/user/register/">新規登録</a>
+
+	</form>
+
+{{ end }}

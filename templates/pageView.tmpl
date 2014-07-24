@@ -2,7 +2,7 @@
 {{ end }}
 {{ define "Content" }}
 <span class="page_information">
-作成者: {{ .Information.User }}, 作成日: {{ .Information.Created.Format "Jan _2 3:04:05PM" }}, 最終変更: {{ .Information.Modified.Time.Format "Jan _2 3:04:05PM" }}  
+作成者: <a href="/user/view/{{ .Information.User }}">{{ .Information.User }}</a>, 作成日: {{ .Information.Created.Format "Jan _2 3:04:05PM" }}, 最終変更: {{ .Information.Modified.Time.Format "Jan _2 3:04:05PM" }}  
 <a href="/page/edit/{{ .Information.Title }}">{{ .EmbedImage "edit.png" "編集" }}</a>
 </span>
 {{ .Markdown }}

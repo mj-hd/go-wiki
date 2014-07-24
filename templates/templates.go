@@ -21,7 +21,9 @@ type Member interface {
 }
 
 type DefaultMember struct {
-	Title string
+	Title      string
+	IsLoggedIn bool
+	User       string
 }
 
 func init() {
