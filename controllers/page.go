@@ -95,42 +95,40 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 	requestedPage := html.EscapeString(request.URL.Path[6+5:])
 
 	if requestedPage == "" {
-		http.Redirect(document, request, "/page/create/", http.StatusFound)
-		return
-	} else {
+		requestedPage = "index"
+	}
 
-		var page models.Page
-		if page.Load(requestedPage) == nil {
+	var page models.Page
+	if page.Load(requestedPage) == nil {
 
-			var tmpl templates.Template
-			user := getSessionUser(request)
+		var tmpl templates.Template
+		user := getSessionUser(request)
 
-			tmpl.Layout = "editor.tmpl"
-			tmpl.Template = "pageEdit.tmpl"
+		tmpl.Layout = "editor.tmpl"
+		tmpl.Template = "pageEdit.tmpl"
 
-			if page.Locked {
-				if user != page.User {
-					http.Redirect(document, request, request.Referer(), http.StatusFound)
-					return
-				}
+		if page.Locked {
+			if user != page.User {
+				http.Redirect(document, request, request.Referer(), http.StatusFound)
+				return
 			}
-
-			err := tmpl.Render(document, pageMember{
-				DefaultMember: &templates.DefaultMember{
-					Title: requestedPage + "の編集",
-					User:  getSessionUser(request),
-				},
-				Markdown:    template.HTML(page.Markdown()),
-				Information: page,
-			})
-			if err != nil {
-				utils.PromulgateFatal(os.Stdout, err)
-				panic(err.Error())
-			}
-
-		} else {
-			http.Redirect(document, request, "/page/create/"+requestedPage, http.StatusFound)
 		}
+
+		err := tmpl.Render(document, pageMember{
+			DefaultMember: &templates.DefaultMember{
+				Title: requestedPage + "の編集",
+				User:  getSessionUser(request),
+			},
+			Markdown:    template.HTML(page.Markdown()),
+			Information: page,
+		})
+		if err != nil {
+			utils.PromulgateFatal(os.Stdout, err)
+			panic(err.Error())
+		}
+
+	} else {
+		http.Redirect(document, request, "/page/create/", http.StatusFound)
 	}
 }
 
@@ -138,13 +136,23 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 func pageCreateHandler(document http.ResponseWriter, request *http.Request) {
 
 	var tmpl templates.Template
+	var page models.Page
 
 	tmpl.Layout = "editor.tmpl"
-	tmpl.Template = "pageCreate.tmpl"
+	tmpl.Template = "pageEdit.tmpl"
 
-	err := tmpl.Render(document, &templates.DefaultMember{
-		Title: "新規ページの作成",
-		User:  getSessionUser(request),
+	page.Title = "タイトル"
+	page.User = getSessionUser(request)
+	page.Locked = false
+	page.Content = sql.NullString{String: "内容", Valid: true}
+
+	err := tmpl.Render(document, pageMember{
+		DefaultMember: &templates.DefaultMember{
+			Title: "新規ページの作成",
+			User:  page.User,
+		},
+		Markdown:    template.HTML(page.Markdown()),
+		Information: page,
 	})
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
