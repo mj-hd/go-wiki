@@ -1,9 +1,13 @@
-{{ define "Header" }}{{ end }}
+{{ define "Header" }}
+{{ end }}
 {{ define "Content" }}
 <form action="/page/save/" method="post">
 	<input type="hidden" name="OldTitle" value="{{ .Information.Title }}" /><br />
-	<input type="text" name="Title" value="{{ .Information.Title }}" /><br />
-	<textarea name="Content" cols=100 rows=50>{{ .Information.Content.String }}</textarea><br />
-	<input type="submit" value="保存" />
+	<input class="title" type="text" name="Title" value="{{ .Information.Title }}" />
+	<textarea class="content" name="Content">{{ .Information.Content.String }}</textarea>
+	<div class="preview">
+
+	</div>
+	<input class="button" type="submit" value="保存" />
 </form>
 {{ end }}

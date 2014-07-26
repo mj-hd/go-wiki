@@ -27,7 +27,7 @@ func indexHandler(document http.ResponseWriter, request *http.Request) {
 
 	err = tmpl.Render(document, pageMember{
 		DefaultMember: &templates.DefaultMember{
-			Title: "IndexPage - " + config.SiteTitle,
+			Title: config.SiteTitle,
 			User:  getSessionUser(request),
 		},
 		Markdown: template.HTML(page.Markdown()),

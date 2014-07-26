@@ -3,9 +3,10 @@
 <head>
 	<meta charset="utf-8">
 	<title>{{ .Title }}</title>
-	{{ .LinkCSS "main.css" }}
+	{{ .LinkCSS "main_editor.css" }}
 	{{ .LinkCSS "markdown.css" }}
 	{{ .LinkJS "jquery.js" }}
+	{{ .LinkJS "editor.js" }}
 	{{ template "Header" . }}
 </head>
 <body>
@@ -19,10 +20,6 @@
 			{{ end }}
 		</div>
 	</header>
-
-	<aside>
-	{{ .Plugin "sidebar" }}
-	</aside>
 
 	<section>
 	

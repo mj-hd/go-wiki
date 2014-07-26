@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"go-wiki/config"
 	"go-wiki/models"
 	"go-wiki/templates"
 	"go-wiki/utils"
@@ -33,7 +32,7 @@ func userViewHandler(document http.ResponseWriter, request *http.Request) {
 
 	err = tmpl.Render(document, userMember{
 		DefaultMember: &templates.DefaultMember{
-			Title: "ユーザ" + user.Name + " " + config.SiteTitle,
+			Title: "ユーザ" + user.Name,
 			User:  getSessionUser(request),
 		},
 		Information: user,
@@ -76,13 +75,15 @@ func userRegisterHandler(document http.ResponseWriter, request *http.Request) {
 
 		tmpl.Template = "userRegisterSuccess.tmpl"
 		tmpl.Render(document, &templates.DefaultMember{
-			Title: "登録完了 " + config.SiteTitle,
+			Title: "登録完了",
+			User:  getSessionUser(request),
 		})
 
 	} else {
 
 		tmpl.Render(document, &templates.DefaultMember{
-			Title: "新規登録 " + config.SiteTitle,
+			Title: "新規登録",
+			User:  getSessionUser(request),
 		})
 
 	}
@@ -108,7 +109,7 @@ func userLoginHandler(document http.ResponseWriter, request *http.Request) {
 			if err != nil {
 				utils.PromulgateDebug(os.Stdout, err)
 			}
-			http.Redirect(document, request, request.Referer(), http.StatusFound)
+			http.Redirect(document, request, "/", http.StatusFound)
 			return
 		} else {
 			utils.PromulgateDebugStr(os.Stdout, "パスワード不一致")
@@ -123,7 +124,8 @@ func userLoginHandler(document http.ResponseWriter, request *http.Request) {
 		tmpl.Template = "userLogin.tmpl"
 
 		err := tmpl.Render(document, &templates.DefaultMember{
-			Title: "ログイン " + config.SiteTitle,
+			Title: "ログイン",
+			User:  getSessionUser(request),
 		})
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)

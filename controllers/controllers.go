@@ -24,6 +24,7 @@ func init() {
 	Router.Register("/user/register/", userRegisterHandler)
 	Router.Register("/user/login/", userLoginHandler)
 	Router.Register("/user/logout/", userLogoutHandler)
+	Router.Register("/api/markdown/", apiMarkdownHandler)
 
 }
 func Del() {

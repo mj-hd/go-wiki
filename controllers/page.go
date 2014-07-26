@@ -10,7 +10,6 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 
-	"go-wiki/config"
 	"go-wiki/models"
 	"go-wiki/templates"
 	"go-wiki/utils"
@@ -53,7 +52,7 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 		tmpl.Template = "pageList.tmpl"
 		err = tmpl.Render(document, pageListMember{
 			DefaultMember: &templates.DefaultMember{
-				Title: "ページ一覧 " + config.SiteTitle,
+				Title: "ページ一覧",
 				User:  getSessionUser(request),
 			},
 			Pages: pages,
@@ -75,7 +74,7 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 
 		err = tmpl.Render(document, pageMember{
 			DefaultMember: &templates.DefaultMember{
-				Title: page.Title + " " + config.SiteTitle,
+				Title: page.Title,
 				User:  getSessionUser(request),
 			},
 			Markdown:    template.HTML(page.Markdown()),
@@ -96,7 +95,7 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 	requestedPage := html.EscapeString(request.URL.Path[6+5:])
 
 	if requestedPage == "" {
-		http.Redirect(document, request, "/page/create", http.StatusFound)
+		http.Redirect(document, request, "/page/create/", http.StatusFound)
 		return
 	} else {
 
@@ -104,13 +103,21 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 		if page.Load(requestedPage) == nil {
 
 			var tmpl templates.Template
+			user := getSessionUser(request)
 
-			tmpl.Layout = "default.tmpl"
+			tmpl.Layout = "editor.tmpl"
 			tmpl.Template = "pageEdit.tmpl"
+
+			if page.Locked {
+				if user != page.User {
+					http.Redirect(document, request, request.Referer(), http.StatusFound)
+					return
+				}
+			}
 
 			err := tmpl.Render(document, pageMember{
 				DefaultMember: &templates.DefaultMember{
-					Title: requestedPage + "の編集 " + config.SiteTitle,
+					Title: requestedPage + "の編集",
 					User:  getSessionUser(request),
 				},
 				Markdown:    template.HTML(page.Markdown()),
@@ -132,11 +139,11 @@ func pageCreateHandler(document http.ResponseWriter, request *http.Request) {
 
 	var tmpl templates.Template
 
-	tmpl.Layout = "default.tmpl"
+	tmpl.Layout = "editor.tmpl"
 	tmpl.Template = "pageCreate.tmpl"
 
 	err := tmpl.Render(document, &templates.DefaultMember{
-		Title: "新規ページの作成 " + config.SiteTitle,
+		Title: "新規ページの作成",
 		User:  getSessionUser(request),
 	})
 	if err != nil {
@@ -154,7 +161,7 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 
 	page.Title = request.FormValue("Title")
 	page.Content = sql.NullString{String: request.FormValue("Content"), Valid: true}
-	page.User = "admin"
+	page.User = getSessionUser(request)
 	page.Locked = false
 	if !models.PageExists(page.Title) {
 		page.Modified = mysql.NullTime{Valid: false}
@@ -172,14 +179,7 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 		tmpl.Layout = "default.tmpl"
 		tmpl.Template = "pageSave.tmpl"
 
-		err := tmpl.Render(document, &templates.DefaultMember{
-			Title: "保存に成功 " + config.SiteTitle,
-			User:  getSessionUser(request),
-		})
-		if err != nil {
-			utils.PromulgateFatal(os.Stdout, err)
-			panic(err.Error())
-		}
+		http.Redirect(document, request, "/page/view/"+page.Title, http.StatusFound)
 
 	} else {
 
