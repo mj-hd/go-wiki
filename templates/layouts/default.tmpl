@@ -12,11 +12,14 @@
 	<header>
 		<div>
 			<h1>{{ .Title }}</h1>
+			<span>
+				<a href="/page/create/">新規作成</a>, 
 			{{ if eq .User "anonymous" }}
-				<span><a href="/user/login/">ログイン</a></span>
+				<a href="/user/login/">ログイン</a>
 			{{ else }}
-				<span><a href="/user/view/{{.User}}">{{.User}}</a>, <a href="/user/logout/">ログアウト</a></span>
+				<a href="/user/view/{{.User}}">{{.User}}</a>, <a href="/user/logout/">ログアウト</a>
 			{{ end }}
+			</span>
 		</div>
 	</header>
 

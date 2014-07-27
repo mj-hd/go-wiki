@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/sessions"
 
 	"go-wiki/config"
+	"go-wiki/templates"
 )
 
 var Router Routes
@@ -25,6 +26,8 @@ func init() {
 	Router.Register("/user/login/", userLoginHandler)
 	Router.Register("/user/logout/", userLogoutHandler)
 	Router.Register("/api/markdown/", apiMarkdownHandler)
+	Router.Register("/error/", flashHandler)
+	Router.Register("/success/", flashHandler)
 
 }
 func Del() {
@@ -87,4 +90,43 @@ func (this *Routes) Key(fn *func(http.ResponseWriter, *http.Request)) string {
 		}
 	}
 	return ""
+}
+
+func showError(document http.ResponseWriter, request *http.Request, message string) {
+	session, _ := sessionStore.Get(request, "go-wiki")
+
+	session.AddFlash(message)
+	session.Save(request, document)
+	http.Redirect(document, request, "/error/", http.StatusSeeOther)
+}
+
+type flashMember struct {
+	*templates.DefaultMember
+	Message string
+	Referer string
+}
+
+func flashHandler(document http.ResponseWriter, request *http.Request) {
+
+	var tmpl templates.Template
+	tmpl.Layout = "default.tmpl"
+	tmpl.Template = "flash.tmpl"
+
+	session, _ := sessionStore.Get(request, "go-wiki")
+
+	var message string
+	if request.URL.Path == "/error/" {
+		message = "エラー"
+	} else {
+		message = "成功"
+	}
+
+	tmpl.Render(document, flashMember{
+		DefaultMember: &templates.DefaultMember{
+			Title: message,
+			User:  session.Values["User"].(string),
+		},
+		Message: session.Flashes()[0].(string),
+		Referer: request.Referer(),
+	})
 }

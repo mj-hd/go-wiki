@@ -19,7 +19,8 @@ func indexHandler(document http.ResponseWriter, request *http.Request) {
 	err := page.Load("index")
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
-		panic(err.Error())
+		showError(document, request, "インデックスページが存在しません。管理人に問い合わせてください。")
+		return
 	}
 
 	tmpl.Layout = "default.tmpl"
@@ -34,5 +35,7 @@ func indexHandler(document http.ResponseWriter, request *http.Request) {
 	})
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
+		showError(document, request, "ページの表示に失敗しました。")
+		return
 	}
 }

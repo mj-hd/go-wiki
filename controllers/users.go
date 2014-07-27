@@ -14,6 +14,10 @@ type userMember struct {
 	*templates.DefaultMember
 	Information models.User
 }
+type userLoginMember struct {
+	*templates.DefaultMember
+	Message string
+}
 
 func userViewHandler(document http.ResponseWriter, request *http.Request) {
 
@@ -24,7 +28,8 @@ func userViewHandler(document http.ResponseWriter, request *http.Request) {
 	err := user.Load(requestedUser)
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
-		panic(err.Error())
+		showError(document, request, "ユーザが存在しません。")
+		return
 	}
 
 	tmpl.Layout = "default.tmpl"
@@ -39,7 +44,8 @@ func userViewHandler(document http.ResponseWriter, request *http.Request) {
 	})
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
-		panic(err.Error())
+		showError(document, request, "ページの表示に失敗しました。")
+		return
 	}
 
 }
@@ -51,6 +57,7 @@ func userEditHandler(document http.ResponseWriter, request *http.Request) {
 	tmpl.Layout = "default.tmpl"
 	tmpl.Template = "userEdit.tmpl"
 
+	showError(document, request, "未作成のページです。")
 }
 
 func userRegisterHandler(document http.ResponseWriter, request *http.Request) {
@@ -70,26 +77,34 @@ func userRegisterHandler(document http.ResponseWriter, request *http.Request) {
 		err := user.Save(user.Name)
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)
-			panic(err.Error())
+			showError(document, request, "ユーザの保存に失敗しました。")
+			return
 		}
 
-		tmpl.Template = "userRegisterSuccess.tmpl"
-		tmpl.Render(document, &templates.DefaultMember{
-			Title: "登録完了",
-			User:  getSessionUser(request),
-		})
+		session, _ := sessionStore.Get(request, "go-wiki")
+		session.AddFlash("ユーザ登録に成功しました。")
+		session.Save(request, document)
+		http.Redirect(document, request, "/success/", http.StatusFound)
+		return
 
 	} else {
 
-		tmpl.Render(document, &templates.DefaultMember{
+		err := tmpl.Render(document, &templates.DefaultMember{
 			Title: "新規登録",
 			User:  getSessionUser(request),
 		})
+		if err != nil {
+			utils.PromulgateFatal(os.Stdout, err)
+			showError(document, request, "ページの表示に失敗しました。")
+			return
+		}
 
 	}
 }
 
 func userLoginHandler(document http.ResponseWriter, request *http.Request) {
+
+	session, _ := sessionStore.Get(request, "go-wiki")
 
 	if request.Method == "POST" {
 
@@ -98,6 +113,8 @@ func userLoginHandler(document http.ResponseWriter, request *http.Request) {
 		err := user.Load(request.FormValue("Name"))
 		if err != nil {
 			utils.PromulgateDebug(os.Stdout, err)
+			session.AddFlash("ユーザが存在しません。")
+			session.Save(request, document)
 			http.Redirect(document, request, "/user/login#error", http.StatusFound)
 			return
 		}
@@ -113,6 +130,8 @@ func userLoginHandler(document http.ResponseWriter, request *http.Request) {
 			return
 		} else {
 			utils.PromulgateDebugStr(os.Stdout, "パスワード不一致")
+			session.AddFlash("パスワードが違います。")
+			session.Save(request, document)
 			http.Redirect(document, request, "/user/login#error", http.StatusFound)
 			return
 		}
@@ -123,13 +142,17 @@ func userLoginHandler(document http.ResponseWriter, request *http.Request) {
 		tmpl.Layout = "default.tmpl"
 		tmpl.Template = "userLogin.tmpl"
 
-		err := tmpl.Render(document, &templates.DefaultMember{
-			Title: "ログイン",
-			User:  getSessionUser(request),
+		err := tmpl.Render(document, userLoginMember{
+			DefaultMember: &templates.DefaultMember{
+				Title: "ログイン",
+				User:  getSessionUser(request),
+			},
+			Message: session.Flashes()[10].(string),
 		})
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)
-			panic(err.Error())
+			showError(document, request, "ページの表示に失敗しました。")
+			return
 		}
 	}
 }

@@ -46,7 +46,8 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 		err := models.GetPageList(&pages, 10)
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)
-			panic(err.Error())
+			showError(document, request, "ページ一覧の取得に失敗しました。")
+			return
 		}
 
 		tmpl.Template = "pageList.tmpl"
@@ -59,7 +60,8 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 		})
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)
-			panic(err.Error())
+			showError(document, request, "ページの表示に失敗しました。")
+			return
 		}
 
 	} else {
@@ -67,7 +69,8 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 		err := page.Load(requestedPage)
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)
-			panic(err.Error())
+			showError(document, request, "指定されたページは存在しません。")
+			return
 		}
 
 		tmpl.Template = "pageView.tmpl"
@@ -82,7 +85,8 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 		})
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)
-			panic(err.Error())
+			showError(document, request, "ページの表示に失敗しました。")
+			return
 		}
 
 	}
@@ -109,7 +113,7 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 
 		if page.Locked {
 			if user != page.User {
-				http.Redirect(document, request, request.Referer(), http.StatusFound)
+				showError(document, request, "ページはロックされています。")
 				return
 			}
 		}
@@ -124,11 +128,13 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 		})
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)
-			panic(err.Error())
+			showError(document, request, "ページの表示に失敗しました。")
+			return
 		}
 
 	} else {
-		http.Redirect(document, request, "/page/create/", http.StatusFound)
+		showError(document, request, "存在しないページです。")
+		return
 	}
 }
 
@@ -156,7 +162,8 @@ func pageCreateHandler(document http.ResponseWriter, request *http.Request) {
 	})
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
-		panic(err.Error())
+		showError(document, request, "ページの表示に失敗しました。")
+		return
 	}
 
 }
@@ -168,6 +175,11 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 	var page models.Page
 
 	page.Title = request.FormValue("Title")
+	if page.Title == "" {
+		showError(document, request, "タイトルが空です。")
+		return
+	}
+
 	page.Content = sql.NullString{String: request.FormValue("Content"), Valid: true}
 	page.User = getSessionUser(request)
 	page.Locked = false
@@ -175,6 +187,11 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 		page.Modified = mysql.NullTime{Valid: false}
 		page.Created = time.Now()
 	} else {
+		if oldTitle != page.Title {
+			showError(document, request, "同じタイトルのページが存在します。")
+			return
+		}
+
 		page.Modified = mysql.NullTime{Time: time.Now(), Valid: true}
 		var oldPage models.Page
 		oldPage.Load(oldTitle)
@@ -192,7 +209,8 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 	} else {
 
 		utils.PromulgateFatalStr(os.Stdout, "Page"+page.Title+"の保存に失敗")
-		panic("Save failed.")
+		showError(document, request, "ページの保存に失敗しました。")
+		return
 
 	}
 

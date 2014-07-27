@@ -1,5 +1,4 @@
 {{ define "Header" }}
-
 {{ end }}
 
 {{ define "Content" }}
@@ -9,6 +8,11 @@
 		<h2>ログイン</h2>
 
 		<table class="login_table">
+			{{ if .Message }}
+			<tr>
+				<td>{{ .Message }}</td>
+			</tr>
+			{{ end }}
 			<tr>
 				<td>ユーザ名</td>
 				<td><input type="text" name="Name" /></td>
