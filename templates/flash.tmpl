@@ -2,9 +2,11 @@
 {{ end }}
 {{ define "Content" }}
 
+{{ range .Messages }}
 <h2>
-{{ .Message }}
+{{ . }}
 </h2>
+{{ end }}
 
 <a href="{{ .Referer }}">戻る</a>
 

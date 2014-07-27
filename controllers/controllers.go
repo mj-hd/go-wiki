@@ -102,8 +102,8 @@ func showError(document http.ResponseWriter, request *http.Request, message stri
 
 type flashMember struct {
 	*templates.DefaultMember
-	Message string
-	Referer string
+	Messages []interface{}
+	Referer  string
 }
 
 func flashHandler(document http.ResponseWriter, request *http.Request) {
@@ -121,12 +121,15 @@ func flashHandler(document http.ResponseWriter, request *http.Request) {
 		message = "成功"
 	}
 
+	flashes := session.Flashes()
+	session.Save(request, document)
+
 	tmpl.Render(document, flashMember{
 		DefaultMember: &templates.DefaultMember{
 			Title: message,
 			User:  session.Values["User"].(string),
 		},
-		Message: session.Flashes()[0].(string),
-		Referer: request.Referer(),
+		Messages: flashes,
+		Referer:  request.Referer(),
 	})
 }

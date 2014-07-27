@@ -142,12 +142,22 @@ func userLoginHandler(document http.ResponseWriter, request *http.Request) {
 		tmpl.Layout = "default.tmpl"
 		tmpl.Template = "userLogin.tmpl"
 
+		var message string
+		flashes := session.Flashes()
+		session.Save(request, document)
+
+		if len(flashes) >= 1 {
+			message = flashes[0].(string)
+		} else {
+			message = ""
+		}
+
 		err := tmpl.Render(document, userLoginMember{
 			DefaultMember: &templates.DefaultMember{
 				Title: "ログイン",
 				User:  getSessionUser(request),
 			},
-			Message: session.Flashes()[10].(string),
+			Message: message,
 		})
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)
