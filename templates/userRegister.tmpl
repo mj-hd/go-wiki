@@ -1,4 +1,5 @@
 {{ define "Header" }}
+{{ .LinkJS "form.js" }}
 {{ end }}
 {{ define "Content" }}
 
@@ -9,18 +10,18 @@
 	<table>
 		<tr>
 			<td>ユーザ名</td>
-			<td><input type="text" name="Name" /></td>
+			<td><input class="name" type="text" name="Name" /></td>
 		</tr>
 		<tr>
 			<td>メールアドレス</td>
-			<td><input type="text" name="Address" /></td>
+			<td><input class="address" type="text" name="Address" /></td>
 		</tr>
 		<tr>
 			<td>パスワード</td>
-			<td><input type="password" name="Password" /></td>
+			<td><input class="password" type="password" name="Password" /></td>
 		</tr>
 		<tr>
-			<td><input type="submit" value="登録" /></td>
+			<td><input class="button" type="submit" value="登録" /></td>
 		</tr>
 	</table>
 

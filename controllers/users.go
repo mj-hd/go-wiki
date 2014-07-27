@@ -74,6 +74,12 @@ func userRegisterHandler(document http.ResponseWriter, request *http.Request) {
 		user.Address = request.FormValue("Address")
 		user.Password = models.GenerateHash(request.FormValue("Password"))
 
+		if user.Name == "" || user.Address == "" || user.Password == "" {
+			utils.PromulgateDebugStr(os.Stdout, "登録に必要な情報が足りません。")
+			showError(document, request, "登録に必要な情報が足りません。")
+			return
+		}
+
 		err := user.Save(user.Name)
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)

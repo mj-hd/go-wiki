@@ -1,7 +1,9 @@
 package models
 
 import (
+	"errors"
 	"os"
+	"regexp"
 	"time"
 
 	"go-wiki/utils"
@@ -29,6 +31,14 @@ func (this *User) Load(name string) error {
 }
 
 func (this *User) Save(name string) error {
+
+	if len(this.Name) < 1 {
+		return errors.New("名前が空です。")
+	}
+	success, _ := regexp.Match("/^([a-zA-Z0-9])+([a-zA-Z0-9\\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\\._-]+)+$/", []byte(this.Address))
+	if !success {
+		return errors.New("アドレスが不正です。")
+	}
 
 	if name == "" || !UserExists(name) {
 		_, err := DB.Exec("INSERT INTO users ( name, caption, level, registered, address, password ) VALUES ( ?, ?, ?, ?, ?, ?)", this.Name, this.Caption, this.Level, this.Registered, this.Address, this.Password)
