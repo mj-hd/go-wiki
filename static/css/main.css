@@ -93,6 +93,8 @@ section .page_information {
 
 section form {
 
+	padding: 50px;
+
 	border: 1px solid #ddd;
 
 	border-radius: 5px;
