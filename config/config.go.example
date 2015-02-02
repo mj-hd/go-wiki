@@ -15,4 +15,5 @@ const (
 	LogFile    string = "log"
 	SessionKey string = "sample"
 	EnableRegister bool = false
+	EnableAnonymousEdit bool = false
 )

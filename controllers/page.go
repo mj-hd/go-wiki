@@ -13,6 +13,7 @@ import (
 	"go-wiki/models"
 	"go-wiki/templates"
 	"go-wiki/utils"
+	"go-wiki/config"
 )
 
 type pageMember struct {
@@ -108,6 +109,11 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 		var tmpl templates.Template
 		user := getSessionUser(request)
 
+		if user == "anonymous" && !config.EnableAnonymousEdit {
+			showError(document, request, "匿名の編集は禁止されています。")
+			return
+		}
+
 		tmpl.Layout = "editor.tmpl"
 		tmpl.Template = "pageEdit.tmpl"
 
@@ -143,6 +149,13 @@ func pageCreateHandler(document http.ResponseWriter, request *http.Request) {
 
 	var tmpl templates.Template
 	var page models.Page
+
+	if getSessionUser(request) == "anonymous" && !config.EnableAnonymousEdit {
+
+		showError(document, request, "匿名の編集は禁止されています。ログインをしてください。")
+
+		return
+	}
 
 	tmpl.Layout = "editor.tmpl"
 	tmpl.Template = "pageEdit.tmpl"
