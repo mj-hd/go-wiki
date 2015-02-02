@@ -8,6 +8,7 @@ import (
 	"go-wiki/models"
 	"go-wiki/templates"
 	"go-wiki/utils"
+	"go-wiki/config"
 )
 
 type userMember struct {
@@ -17,6 +18,7 @@ type userMember struct {
 type userLoginMember struct {
 	*templates.DefaultMember
 	Message string
+	EnableRegister bool
 }
 
 func userViewHandler(document http.ResponseWriter, request *http.Request) {
@@ -63,6 +65,13 @@ func userEditHandler(document http.ResponseWriter, request *http.Request) {
 func userRegisterHandler(document http.ResponseWriter, request *http.Request) {
 
 	var tmpl templates.Template
+
+	if !config.EnableRegister {
+
+		showError(document, request, "ユーザの新規登録は禁止されています。")
+
+		return
+	}
 
 	tmpl.Layout = "default.tmpl"
 	tmpl.Template = "userRegister.tmpl"
@@ -164,6 +173,7 @@ func userLoginHandler(document http.ResponseWriter, request *http.Request) {
 				User:  getSessionUser(request),
 			},
 			Message: message,
+			EnableRegister: config.EnableRegister,
 		})
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)
