@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/russross/blackfriday"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type Page struct {
@@ -40,7 +41,7 @@ func (this *Page) Save(title string) error {
 	return nil
 }
 func (this *Page) Markdown() []byte {
-	return blackfriday.MarkdownCommon([]byte(this.Content.String))
+	return bluemonday.UGCPolicy().SanitizeBytes(blackfriday.MarkdownCommon([]byte(this.Content.String)))
 }
 
 func GetPageList(pages *[]Page, limit int) error {
