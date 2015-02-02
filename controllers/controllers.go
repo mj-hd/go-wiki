@@ -124,6 +124,10 @@ func flashHandler(document http.ResponseWriter, request *http.Request) {
 	flashes := session.Flashes()
 	session.Save(request, document)
 
+	if session.Values["User"] == nil {
+		session.Values["User"] = "anonymous"
+	}
+
 	tmpl.Render(document, flashMember{
 		DefaultMember: &templates.DefaultMember{
 			Title: message,
