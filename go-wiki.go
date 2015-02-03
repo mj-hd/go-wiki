@@ -5,6 +5,7 @@ import (
 	"os"
 	"fmt"
 	"syscall"
+	"flag"
 
 	"go-wiki/config"
 	"go-wiki/controllers"
@@ -18,11 +19,19 @@ import (
 
 func main() {
 
-	errcd := daemon(0, 0)
+	var noDaemonize bool
 
-	if errcd != 0 {
-		fmt.Println("デーモン化に失敗。")
-		os.Exit(1)
+	flag.BoolVar(&noDaemonize, "nodaemonize", false, "デーモン化しない")
+	flag.Parse()
+
+	if !noDaemonize {
+
+		errcd := daemon(0, 0)
+
+		if errcd != 0 {
+			fmt.Println("デーモン化に失敗。")
+			os.Exit(1)
+		}
 	}
 
 	os.Chdir(config.GowikiPath)
