@@ -4,7 +4,7 @@ $(function() {
 		updatePreview(this);
 	});
 
-	updatePreview();
+	updatePreview($("textarea"));
 });
 
 function updatePreview(elm) {
