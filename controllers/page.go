@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/microcosm-cc/bluemonday"
 
 	"go-wiki/models"
 	"go-wiki/templates"
@@ -183,11 +184,11 @@ func pageCreateHandler(document http.ResponseWriter, request *http.Request) {
 
 func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 
-	oldTitle := request.FormValue("OldTitle")
+	oldTitle := bluemonday.UGCPolicy().Sanitize(request.FormValue("OldTitle"))
 
 	var page models.Page
 
-	page.Title = request.FormValue("Title")
+	page.Title = bluemonday.UGCPolicy().Sanitize(request.FormValue("Title"))
 	if page.Title == "" {
 		showError(document, request, "タイトルが空です。")
 		return

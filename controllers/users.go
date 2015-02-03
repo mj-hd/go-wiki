@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/microcosm-cc/bluemonday"
+
 	"go-wiki/models"
 	"go-wiki/templates"
 	"go-wiki/utils"
@@ -79,8 +81,8 @@ func userRegisterHandler(document http.ResponseWriter, request *http.Request) {
 	if request.Method == "POST" {
 
 		var user models.User
-		user.Name = request.FormValue("Name")
-		user.Address = request.FormValue("Address")
+		user.Name = bluemonday.UGCPolicy().Sanitize(request.FormValue("Name"))
+		user.Address = bluemonday.UGCPolicy().Sanitize(request.FormValue("Address"))
 		user.Password = models.GenerateHash(request.FormValue("Password"))
 
 		if user.Name == "" || user.Address == "" || user.Password == "" {
@@ -125,7 +127,7 @@ func userLoginHandler(document http.ResponseWriter, request *http.Request) {
 
 		var user models.User
 
-		err := user.Load(request.FormValue("Name"))
+		err := user.Load(bluemonday.UGCPolicy().Sanitize(request.FormValue("Name")))
 		if err != nil {
 			utils.PromulgateDebug(os.Stdout, err)
 			session.AddFlash("ユーザが存在しません。")
