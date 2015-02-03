@@ -198,7 +198,7 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 
 	page.Content = sql.NullString{String: request.FormValue("Content"), Valid: true}
 	page.User = getSessionUser(request)
-	page.Locked = false
+	page.Locked = (request.FormValue("Locked") == "1")
 	if !models.PageExists(page.Title) {
 		page.Modified = mysql.NullTime{Valid: false}
 		page.Created = time.Now()
