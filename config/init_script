@@ -1,0 +1,42 @@
+#!/bin/sh
+# chkconfig: - 99 1
+# description: Golang-based wiki system
+# processname: go-wiki
+
+# source function library
+. /etc/rc.d/init.d/functions
+ 
+PATH=$PATH:/var/www/go-wiki
+PROG=/var/www/go-wiki/go-wiki
+PROGNAME=`basename $PROG`
+ 
+[ -f $PROG ] || exit 0
+ 
+case "$1" in
+start)
+  echo -n $"Starting $PROGNAME: "
+  daemon $PROG
+  echo
+;;
+stop)
+  echo -n $"Stopping $PROGNAME:"
+  killproc $PROGNAME
+  echo
+;;
+status)
+  status $PROGNAME
+;;
+restart)
+  echo -n $"Stopping $PROGNAME:"
+  killproc $PROGNAME
+  echo
+  echo -n $"Starting $PROGNAME: "
+  daemon $PROG
+  echo
+;;
+*)
+  echo $"Usage: $PROGNAME {start|stop|status|restart}" >&2
+  exit 1
+;;
+esac
+exit 0
