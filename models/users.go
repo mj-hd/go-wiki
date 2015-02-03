@@ -24,6 +24,18 @@ type User struct {
 
 func (this *User) Load(name string) error {
 
+	if name == "anonymous" {
+		this.Id = -1
+		this.Name = "anonymous"
+		this.Caption = "未登録ユーザ"
+		this.Level = 1000
+		this.Registered = time.Now()
+		this.Address = "anonymous@anonymous.an"
+		this.Password = ""
+
+		return nil
+	}
+
 	row := DB.QueryRow("SELECT id, name, caption, level, registered, address, password FROM users WHERE name = ?", name)
 	err := row.Scan(&this.Id, &this.Name, &this.Caption, &this.Level, &this.Registered, &this.Address, &this.Password)
 

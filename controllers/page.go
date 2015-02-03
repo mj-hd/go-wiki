@@ -122,8 +122,16 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 
 		if page.Locked {
 			if user != page.User {
-				showError(document, request, "ページはロックされています。")
-				return
+				curUser := models.User{}
+				pagUser := models.User{}
+
+				curUser.Load(user)
+				pagUser.Load(page.User)
+
+				if curUser.Level >= pagUser.Level {
+					showError(document, request, "ページはロックされています。")
+					return
+				}
 			}
 		}
 
