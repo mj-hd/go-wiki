@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"errors"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/microcosm-cc/bluemonday"
@@ -110,6 +111,7 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 		var tmpl templates.Template
 		user := getSessionUser(request)
 
+		utils.PromulgateDebug(os.Stdout, errors.New("Trying to edit as " + user))
 		if user == "anonymous" && !config.EnableAnonymousEdit {
 			showError(document, request, "匿名の編集は禁止されています。")
 			return
