@@ -12,7 +12,7 @@ func Sidebar() template.HTML {
 
 	var page models.Page
 
-	err := page.Load("_sidebar")
+	err := page.LoadFromTitle("_sidebar")
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
 		panic(err.Error())

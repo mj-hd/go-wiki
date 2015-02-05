@@ -69,7 +69,7 @@ func pageViewHandler(document http.ResponseWriter, request *http.Request) {
 
 	} else {
 		var page models.Page
-		err := page.Load(requestedPage)
+		err := page.LoadFromTitle(requestedPage)
 		if err != nil {
 			utils.PromulgateFatal(os.Stdout, err)
 			showError(document, request, "指定されたページは存在しません。")
@@ -106,7 +106,7 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 	}
 
 	var page models.Page
-	if page.Load(requestedPage) == nil {
+	if page.LoadFromTitle(requestedPage) == nil {
 
 		var tmpl templates.Template
 		user := getSessionUser(request)
@@ -218,12 +218,12 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 
 		page.Modified = mysql.NullTime{Time: time.Now(), Valid: true}
 		var oldPage models.Page
-		oldPage.Load(oldTitle)
+		oldPage.LoadFromTitle(oldTitle)
 		page.Created = oldPage.Created
 		page.Attachments = oldPage.Attachments
 	}
 
-	if page.Save(oldTitle) == nil {
+	if page.SaveToTitle(oldTitle) == nil {
 
 		var tmpl templates.Template
 		tmpl.Layout = "default.tmpl"

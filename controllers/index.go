@@ -16,7 +16,7 @@ func indexHandler(document http.ResponseWriter, request *http.Request) {
 	var tmpl templates.Template
 	var page models.Page
 
-	err := page.Load("index")
+	err := page.LoadFromTitle("index")
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
 		showError(document, request, "インデックスページが存在しません。管理人に問い合わせてください。")

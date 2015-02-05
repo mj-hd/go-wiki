@@ -32,11 +32,21 @@ type File struct {
 	Data []byte
 }
 
-func (this *Page) Load(title string) error {
+func (this *Page) LoadFromTitle(title string) error {
+
+	id, err := GetPageIDFromTitle(title)
+	if err != nil {
+		return err
+	}
+
+	return this.Load(id)
+}
+
+func (this *Page) Load(id int) error {
 
 	var attachments []byte
 
-	row := DB.QueryRow("SELECT id, title, user, locked, created, modified, content, attachments FROM pages WHERE title = ?", title)
+	row := DB.QueryRow("SELECT id, title, user, locked, created, modified, content, attachments FROM pages WHERE id = ?", id)
 	err := row.Scan(&this.Id, &this.Title, &this.User, &this.Locked, &this.Created, &this.Modified, &this.Content, &attachments)
 
 	if err != nil {
@@ -53,32 +63,61 @@ func (this *Page) Load(title string) error {
 	err = decoder.Decode(&this.Attachments)
 
 	return err
+
 }
-func (this *Page) Save(title string) error {
+
+func (this *Page) SaveToTitle(title string) error {
+
+	// 上書きの場合
+	if PageExists(title) {
+		id, err := GetPageIDFromTitle(title)
+		if err != nil {
+			return err
+		}
+
+		return this.Update(id)
+	}
+
+	// 新規作成の場合
+	return this.Create()
+}
+
+func (this *Page) Create() error {
 
 	buffer := new(bytes.Buffer)
 	encoder := gob.NewEncoder(buffer)
 
 	err := encoder.Encode(this.Attachments)
-
 	if err != nil {
 		return err
 	}
 
-	if title == "" || !PageExists(title) {
-		_, err = DB.Exec("INSERT INTO pages ( title, user, locked, created, modified, content, attachments ) VALUES ( ?, ?, ?, ?, ?, ?, ?)", this.Title, this.User, this.Locked, this.Created, this.Modified, this.Content, buffer.Bytes())
-		if err != nil {
-			return err
-		}
-	} else {
-		_, err := DB.Exec("UPDATE pages SET title = ?, user = ?, locked = ?, created = ?, modified = ?, content = ?, attachments = ? WHERE title = ?", this.Title, this.User, this.Locked, this.Created, this.Modified, this.Content, buffer.Bytes(), title)
-		if err != nil {
-			return err
-		}
+	_, err = DB.Exec("INSERT INTO pages ( title, user, locked, created, modified, content, attachments ) VALUES ( ?, ?, ?, ?, ?, ?, ?)", this.Title, this.User, this.Locked, this.Created, this.Modified, this.Content, buffer.Bytes())
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
+
+func (this *Page) Update(id int) error {
+
+	buffer := new(bytes.Buffer)
+	encoder := gob.NewEncoder(buffer)
+
+	err := encoder.Encode(this.Attachments)
+	if err != nil {
+		return err
+	}
+
+	_, err = DB.Exec("UPDATE pages SET title = ?, user = ?, locked = ?, created = ?, modified = ?, content = ?, attachments = ? WHERE id = ?", this.Title, this.User, this.Locked, this.Created, this.Modified, this.Content, buffer.Bytes(), id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (this *Page) Markdown() []byte {
 	return bluemonday.UGCPolicy().SanitizeBytes(blackfriday.MarkdownCommon([]byte(this.Content.String)))
 }
@@ -128,4 +167,16 @@ func PageExists(title string) bool {
 	}
 
 	return rowCount > 0
+}
+
+func GetPageIDFromTitle(title string) (int, error) {
+
+	var id int
+
+	err := DB.QueryRow("SELECT id FROM pages WHERE title=?", title).Scan(&id)
+	if err != nil {
+		return -1, err
+	}
+
+	return id, nil
 }
