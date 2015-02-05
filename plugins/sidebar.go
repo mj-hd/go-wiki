@@ -14,7 +14,7 @@ func Sidebar() template.HTML {
 
 	err := page.Load("_sidebar")
 	if err != nil {
-		utils.PromulgateFatalStr(os.Stdout, "サイドバープラグインが有効だが、_sidebarページが存在しない")
+		utils.PromulgateFatal(os.Stdout, err)
 		panic(err.Error())
 	}
 
