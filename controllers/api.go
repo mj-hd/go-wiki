@@ -47,11 +47,15 @@ func apiFileUploadHandler(document http.ResponseWriter, request *http.Request) {
 
 	request.ParseMultipartForm(32 << 20)
 
-	var pageName = request.FormValue("page")
+	pageName, err := url.QueryUnescape(request.FormValue("page"))
+	if err != nil {
+		utils.PromulgateFatal(os.Stdout, err)
+		return
+	}
 
 	var page = new(models.Page)
 
-	err := page.LoadFromTitle(pageName)
+	err = page.LoadFromTitle(pageName)
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
 		return

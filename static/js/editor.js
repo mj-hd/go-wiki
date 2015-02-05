@@ -33,7 +33,7 @@ function applyDropZoneToImagePad() {
 		url: "/api/fileUpload/",
 
 		data: {
-			page: $("input[name=OldTitle]").val()
+			page: encodeURIComponent($("input[name=OldTitle]").val())
 		},
 
 		uploadFinished: function(i, file, response) {
