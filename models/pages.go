@@ -1,38 +1,77 @@
 package models
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/gob"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/russross/blackfriday"
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/russross/blackfriday"
 )
 
 type Page struct {
-	Id       int
-	Title    string
-	User     string
-	Locked   bool
-	Created  time.Time
-	Modified mysql.NullTime
-	Content  sql.NullString
+	Id          int
+	Title       string
+	User        string
+	Locked      bool
+	Created     time.Time
+	Modified    mysql.NullTime
+	Content     sql.NullString
+	Attachments Attachments
+}
+
+type Attachments struct {
+	Files []File
+}
+
+type File struct {
+	Name string
+	Type string
+	Data []byte
 }
 
 func (this *Page) Load(title string) error {
-	row := DB.QueryRow("SELECT id, title, user, locked, created, modified, content FROM pages WHERE title = ?", title)
-	err := row.Scan(&this.Id, &this.Title, &this.User, &this.Locked, &this.Created, &this.Modified, &this.Content)
+
+	var attachments []byte
+
+	row := DB.QueryRow("SELECT id, title, user, locked, created, modified, content, attachments FROM pages WHERE title = ?", title)
+	err := row.Scan(&this.Id, &this.Title, &this.User, &this.Locked, &this.Created, &this.Modified, &this.Content, &attachments)
+
+	if err != nil {
+		return err
+	}
+
+	if attachments == nil {
+		return nil
+	}
+
+	buffer := bytes.NewBuffer(attachments)
+	decoder := gob.NewDecoder(buffer)
+
+	err = decoder.Decode(&this.Attachments)
+
 	return err
 }
 func (this *Page) Save(title string) error {
 
+	buffer := new(bytes.Buffer)
+	encoder := gob.NewEncoder(buffer)
+
+	err := encoder.Encode(this.Attachments)
+
+	if err != nil {
+		return err
+	}
+
 	if title == "" || !PageExists(title) {
-		_, err := DB.Exec("INSERT INTO pages ( title, user, locked, created, modified, content ) VALUES ( ?, ?, ?, ?, ?, ?)", this.Title, this.User, this.Locked, this.Created, this.Modified, this.Content)
+		_, err = DB.Exec("INSERT INTO pages ( title, user, locked, created, modified, content, attachments ) VALUES ( ?, ?, ?, ?, ?, ?, ?)", this.Title, this.User, this.Locked, this.Created, this.Modified, this.Content, buffer.Bytes())
 		if err != nil {
 			return err
 		}
 	} else {
-		_, err := DB.Exec("UPDATE pages SET title = ?, user = ?, locked = ?, created = ?, modified = ?, content = ? WHERE title = ?", this.Title, this.User, this.Locked, this.Created, this.Modified, this.Content, title)
+		_, err := DB.Exec("UPDATE pages SET title = ?, user = ?, locked = ?, created = ?, modified = ?, content = ?, attachments = ? WHERE title = ?", this.Title, this.User, this.Locked, this.Created, this.Modified, this.Content, buffer.Bytes(), title)
 		if err != nil {
 			return err
 		}

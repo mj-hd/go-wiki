@@ -26,6 +26,8 @@ func init() {
 	Router.Register("/user/login/", userLoginHandler)
 	Router.Register("/user/logout/", userLogoutHandler)
 	Router.Register("/api/markdown/", apiMarkdownHandler)
+	Router.Register("/api/fileUpload/", apiFileUploadHandler)
+	Router.Register("/api/fileView/", apiFileViewHandler)
 	Router.Register("/error/", flashHandler)
 	Router.Register("/success/", flashHandler)
 

@@ -118,3 +118,15 @@ section form .button {
 
 	font-size: 1.4em;
 }
+
+section form .preview .imagePad {
+	width: 80%;
+	height: 200px;
+
+	background: #ddd;
+	color: #888;
+
+	text-align: center;
+
+	line-height: 100px;
+}

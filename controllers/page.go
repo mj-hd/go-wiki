@@ -2,20 +2,20 @@ package controllers
 
 import (
 	"database/sql"
+	"errors"
 	"html"
 	"html/template"
 	"net/http"
 	"os"
 	"time"
-	"errors"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/microcosm-cc/bluemonday"
 
+	"go-wiki/config"
 	"go-wiki/models"
 	"go-wiki/templates"
 	"go-wiki/utils"
-	"go-wiki/config"
 )
 
 type pageMember struct {
@@ -111,7 +111,7 @@ func pageEditHandler(document http.ResponseWriter, request *http.Request) {
 		var tmpl templates.Template
 		user := getSessionUser(request)
 
-		utils.PromulgateDebug(os.Stdout, errors.New("Trying to edit as " + user))
+		utils.PromulgateDebug(os.Stdout, errors.New("Trying to edit as "+user))
 		if user == "anonymous" && !config.EnableAnonymousEdit {
 			showError(document, request, "匿名の編集は禁止されています。")
 			return
@@ -220,6 +220,7 @@ func pageSaveHandler(document http.ResponseWriter, request *http.Request) {
 		var oldPage models.Page
 		oldPage.Load(oldTitle)
 		page.Created = oldPage.Created
+		page.Attachments = oldPage.Attachments
 	}
 
 	if page.Save(oldTitle) == nil {
