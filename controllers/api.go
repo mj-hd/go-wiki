@@ -21,7 +21,7 @@ type apiMarkdownMember struct {
 }
 
 func apiMarkdownHandler(document http.ResponseWriter, request *http.Request) {
-	document.Header().Set("Content-Type", "application/json")
+
 	var jso []byte
 	var text string
 	var texts = request.URL.Query()["text"]
@@ -38,6 +38,8 @@ func apiMarkdownHandler(document http.ResponseWriter, request *http.Request) {
 				bluemonday.UGCPolicy().SanitizeBytes(
 					blackfriday.MarkdownCommon(
 						[]byte(text))))})
+
+	document.Header().Set("Content-Type", "application/json")
 	document.Write(jso)
 }
 
@@ -48,8 +50,8 @@ func apiFileUploadHandler(document http.ResponseWriter, request *http.Request) {
 	var pageName = request.FormValue("page")
 
 	var page = new(models.Page)
-	err := page.LoadFromTitle(pageName)
 
+	err := page.LoadFromTitle(pageName)
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
 		return
@@ -59,7 +61,6 @@ func apiFileUploadHandler(document http.ResponseWriter, request *http.Request) {
 	var buffer = new(bytes.Buffer)
 
 	file, handler, err := request.FormFile("file")
-
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
 		return
@@ -83,7 +84,6 @@ func apiFileUploadHandler(document http.ResponseWriter, request *http.Request) {
 	}
 
 	document.WriteHeader(200)
-
 }
 
 func apiFileViewHandler(document http.ResponseWriter, request *http.Request) {
@@ -92,11 +92,11 @@ func apiFileViewHandler(document http.ResponseWriter, request *http.Request) {
 	var fileName = strings.Split(request.URL.Path, "/")[4]
 
 	var page = new(models.Page)
-	err := page.LoadFromTitle(pageName)
 
+	err := page.LoadFromTitle(pageName)
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
-		// エラー画像
+		document.WriteHeader(404)
 		return
 	}
 
@@ -114,6 +114,6 @@ func apiFileViewHandler(document http.ResponseWriter, request *http.Request) {
 
 	utils.PromulgateDebugStr(os.Stdout, "ImageFile "+fileName+" of "+pageName+" NotFound")
 
-	// エラー画像
+	document.WriteHeader(404)
 	return
 }
