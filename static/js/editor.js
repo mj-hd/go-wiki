@@ -33,11 +33,11 @@ function applyDropZoneToImagePad() {
 		url: "/api/fileUpload/",
 
 		data: {
-			page: $(".title").val()
+			page: $("input[name=OldTitle]").val()
 		},
 
 		uploadFinished: function(i, file, response) {
-			$("textarea").val($("textarea").val().replace(/!\[(.*)\]\(\)/, '![$1](/api/fileView/'+encodeURIComponent($(".title").val())+'/'+encodeURIComponent(file.name)+')'));
+			$("textarea").val($("textarea").val().replace(/!\[(.*)\]\(\)/, '![$1](/api/fileView/'+encodeURIComponent($("input[name=OldTitle]").val())+'/'+encodeURIComponent(file.name)+')'));
 			updatePreview($("textarea"));
 		},
 
