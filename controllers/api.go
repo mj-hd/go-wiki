@@ -48,7 +48,7 @@ func apiFileUploadHandler(document http.ResponseWriter, request *http.Request) {
 	var pageName = request.FormValue("page")
 
 	var page = new(models.Page)
-	err := page.Load(pageName)
+	err := page.LoadFromTitle(pageName)
 
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
@@ -76,7 +76,7 @@ func apiFileUploadHandler(document http.ResponseWriter, request *http.Request) {
 
 	page.Attachments.Files = append(page.Attachments.Files, attachment)
 
-	err = page.Save(pageName)
+	err = page.Update(page.Id)
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
 		return
@@ -92,7 +92,7 @@ func apiFileViewHandler(document http.ResponseWriter, request *http.Request) {
 	var fileName = strings.Split(request.URL.Path, "/")[4]
 
 	var page = new(models.Page)
-	err := page.Load(pageName)
+	err := page.LoadFromTitle(pageName)
 
 	if err != nil {
 		utils.PromulgateFatal(os.Stdout, err)
@@ -108,6 +108,7 @@ func apiFileViewHandler(document http.ResponseWriter, request *http.Request) {
 
 			document.Write(file.Data)
 
+			return
 		}
 	}
 
