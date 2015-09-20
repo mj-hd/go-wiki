@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"os"
 
-	"go-wiki/config"
-	"go-wiki/models"
-	"go-wiki/templates"
-	"go-wiki/utils"
+	"../config"
+	"../models"
+	"../templates"
+	"../utils"
 )
 
 func indexHandler(document http.ResponseWriter, request *http.Request) {

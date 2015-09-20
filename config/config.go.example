@@ -1,6 +1,6 @@
 package config
 
-import "go-wiki/utils"
+import "../utils"
 
 const (
 	GowikiPath string = "/var/www/go-wiki"

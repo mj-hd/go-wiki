@@ -4,8 +4,8 @@ import (
 	"html/template"
 	"os"
 
-	"go-wiki/models"
-	"go-wiki/utils"
+	"../models"
+	"../utils"
 )
 
 func Sidebar() template.HTML {

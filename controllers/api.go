@@ -9,8 +9,8 @@ import (
 	"os"
 	"strings"
 
-	"go-wiki/models"
-	"go-wiki/utils"
+	"../models"
+	"../utils"
 
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday"

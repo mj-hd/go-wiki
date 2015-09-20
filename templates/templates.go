@@ -4,8 +4,8 @@ import (
 	"html/template"
 	"io"
 
-	"go-wiki/config"
-	"go-wiki/plugins"
+	"../config"
+	"../plugins"
 )
 
 type Template struct {

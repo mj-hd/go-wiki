@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"go-wiki/config"
-	"go-wiki/utils"
+	"../config"
+	"../utils"
 )
 
 var DB *sql.DB

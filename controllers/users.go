@@ -7,10 +7,10 @@ import (
 
 	"github.com/microcosm-cc/bluemonday"
 
-	"go-wiki/models"
-	"go-wiki/templates"
-	"go-wiki/utils"
-	"go-wiki/config"
+	"../models"
+	"../templates"
+	"../utils"
+	"../config"
 )
 
 type userMember struct {

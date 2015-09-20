@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"time"
 
-	"go-wiki/utils"
+	"../utils"
 
 	"code.google.com/p/go.crypto/bcrypt"
 	_ "github.com/go-sql-driver/mysql"

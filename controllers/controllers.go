@@ -5,8 +5,8 @@ import (
 
 	"github.com/gorilla/sessions"
 
-	"go-wiki/config"
-	"go-wiki/templates"
+	"../config"
+	"../templates"
 )
 
 var Router Routes

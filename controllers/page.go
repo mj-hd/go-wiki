@@ -12,10 +12,10 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/microcosm-cc/bluemonday"
 
-	"go-wiki/config"
-	"go-wiki/models"
-	"go-wiki/templates"
-	"go-wiki/utils"
+	"../config"
+	"../models"
+	"../templates"
+	"../utils"
 )
 
 type pageMember struct {
